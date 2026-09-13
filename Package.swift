@@ -14,10 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swift-microservices/swift-authentication.git", from: "0.1.0"),
-        // Below 5.7.0 on purpose: 5.7.0 compiles with `treatAllWarnings(as: .error)`, and Xcode
-        // passes `-suppress-warnings` to every dependency, which the compiler refuses to combine.
-        // `swift build` passes on 5.7.0; the Xcode build fails in the JWTKit target.
-        .package(url: "https://github.com/vapor/jwt-kit.git", "5.3.0"..<"5.7.0"),
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "5.7.1"),
     ],
     targets: [
         .target(
