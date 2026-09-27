@@ -1,6 +1,20 @@
 // swift-tools-version: 6.3
 import PackageDescription
 
+let swiftSettings: [SwiftSetting] = [
+    // https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md
+    .enableUpcomingFeature("ExistentialAny"),
+
+    // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0444-member-import-visibility.md
+    .enableUpcomingFeature("MemberImportVisibility"),
+
+    // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md
+    .enableUpcomingFeature("InternalImportsByDefault"),
+
+    // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+]
+
 let package = Package(
     name: "swift-authentication-jwt",
     platforms: [
@@ -22,7 +36,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Authentication", package: "swift-authentication"),
                 .product(name: "JWTKit", package: "jwt-kit"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "AuthenticationJWTTests",
@@ -30,7 +45,9 @@ let package = Package(
                 .target(name: "AuthenticationJWT"),
                 .product(name: "Authentication", package: "swift-authentication"),
                 .product(name: "JWTKit", package: "jwt-kit"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v6]
 )
