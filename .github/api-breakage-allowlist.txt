@@ -1,0 +1,2 @@
+API breakage: func JWTAuthenticator.authenticate(_:) is now with nonisolated
+API breakage: func JWTIssuer.issue(for:) is now with nonisolated

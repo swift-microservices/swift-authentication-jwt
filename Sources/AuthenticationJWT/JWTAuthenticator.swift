@@ -5,8 +5,8 @@
 //  Created by Zaid Rahhawi on 9/11/26.
 //
 
-import Authentication
-import JWTKit
+public import Authentication
+public import JWTKit
 
 /// Proves a bearer token that is a JSON Web Token.
 ///
