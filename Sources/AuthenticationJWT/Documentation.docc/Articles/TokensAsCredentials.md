@@ -6,8 +6,8 @@ ignored.
 ## One issuer, many authenticators
 
 A JSON Web Token is a payload signed by a private key. The one process that holds that key is
-the issuer: it mints a token when someone proves who they are by other means, a password, a
-passkey, a service credential. Every other process holds only the public key, and can prove a
+the issuer: it mints a token when a person proves who they are by other means, a password or a
+passkey. Every other process holds only the public key, and can prove a
 token it is handed without being able to mint one. That asymmetry is the whole design: a stolen
 verification key lets an attacker read tokens, never forge them.
 
