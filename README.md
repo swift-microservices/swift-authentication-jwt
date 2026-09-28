@@ -3,7 +3,7 @@
 A bearer token as a JSON Web Token: issued with a private key, proved with the public one.
 
 ```swift
-.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.1.0"),
+.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.2.0"),
 ```
 
 ```swift
