@@ -11,8 +11,8 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
   own `verify(using:)` decides which to enforce.
 - The authenticator refuses by throwing and never declines. An invalid token is an error, not a
   credential this service happens not to admit.
-- jwt-kit is pinned below 5.7.0 for the reason in `Package.swift`. Do not lift the pin without
-  confirming the Xcode build.
+- jwt-kit is required from 5.7.1, the first release whose warnings-as-errors setting no longer
+  reaches an Xcode build. Do not reintroduce a ceiling below it.
 
 ## What does not belong here
 

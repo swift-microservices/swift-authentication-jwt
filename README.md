@@ -3,7 +3,7 @@
 A bearer token as a JSON Web Token: issued with a private key, proved with the public one.
 
 ```swift
-.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.1.0"),
+.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.2.0"),
 ```
 
 ```swift
@@ -58,11 +58,7 @@ authenticator, and binds the result as a `Principal<AppToken, String>`.
 
 ## Requirements
 
-Swift 6.3, macOS 15 or Linux.
-
-jwt-kit is pinned below 5.7.0 on purpose: that version compiles with warnings as errors, and
-Xcode passes `-suppress-warnings` to every dependency, which the compiler refuses to combine.
-`swift build` is unaffected.
+Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1 or later.
 
 ## Development
 

@@ -7,9 +7,14 @@
 
 import Authentication
 import AuthenticationJWT
-import Foundation
 import JWTKit
 import Testing
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 
 struct TestToken: JWTPayload, Equatable {
     let subject: SubjectClaim
