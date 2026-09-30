@@ -1,2 +1,4 @@
 API breakage: func JWTAuthenticator.authenticate(_:) is now with nonisolated
+API breakage: func JWTAuthenticator.authenticate(_:) has return type change from Payload? to Payload
+API breakage: typealias JWTAuthenticator.Identity has underlying type change from Payload? to Payload
 API breakage: func JWTIssuer.issue(for:) is now with nonisolated

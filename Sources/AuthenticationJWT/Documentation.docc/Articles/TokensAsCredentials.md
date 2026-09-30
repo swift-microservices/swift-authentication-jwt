@@ -26,13 +26,12 @@ travel in the token and the application decides what they permit.
 Which claims to enforce is the payload's own `verify(using:)`. The authenticator calls it after
 the signature checks, so an expired token fails the same way a forged one does.
 
-## Refused, never declined
+## Authentication returns an identity or throws
 
-An `Authenticator` may decline a credential with `nil`, meaning it names nobody this service
-recognises, and the call continues unbound. A JWT authenticator never does that. A token that
-does not verify, a bad signature, an expired claim, an unknown issuer, is not a valid credential
-this service happens not to admit; it is an invalid one, and the caller must be told. The
-authenticator throws, and the transport turns that into its unauthenticated status.
+The authenticator returns the payload after the signature and the payload's claims verify.
+Authentication throws if either check fails. The supplied transport packages translate that
+failure into their unauthenticated status. A call with no token never reaches the authenticator;
+requiring an identity is the application's decision.
 
 A token that verifies but names a subject the service does not know is a different question,
 and not this package's: the handler decides what a proven identity may do.

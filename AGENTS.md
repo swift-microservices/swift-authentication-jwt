@@ -9,8 +9,8 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
   jwt-kit.
 - The payload is the application's `JWTPayload`. This package never reads claims; the payload's
   own `verify(using:)` decides which to enforce.
-- The authenticator refuses by throwing and never declines. An invalid token is an error, not a
-  credential this service happens not to admit.
+- The authenticator returns the verified payload or throws if authentication fails. The
+  application decides whether a call requires an identity and what that identity may do.
 - jwt-kit is required from 5.7.1, the first release whose warnings-as-errors setting no longer
   reaches an Xcode build. Do not reintroduce a ceiling below it.
 

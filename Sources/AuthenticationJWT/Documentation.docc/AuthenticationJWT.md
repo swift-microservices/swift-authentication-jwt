@@ -13,9 +13,9 @@ The payload is the application's type. This package asks only that it be a `JWTP
 leaves which claims to enforce to the payload's own `verify(using:)`. Whether it names a person
 or a process is a claim inside it.
 
-A token that does not verify is refused, never declined: an invalid credential is an error the
-caller must see, while a valid one this service does not admit would be the transport's or the
-handler's decision.
+Authentication returns the verified payload or throws when verification fails. Whether a call
+requires an identity, and what an authenticated identity may do, are the application's
+decisions.
 
 ## Example
 

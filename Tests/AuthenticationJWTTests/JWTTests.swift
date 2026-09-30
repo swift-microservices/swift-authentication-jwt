@@ -52,11 +52,11 @@ struct JWTTests {
     @Test("A token the issuer minted is proved by the authenticator holding the public key")
     func issuedTokenIsAuthenticated() async throws {
         let issuer = await issuer(privateKey)
-        let authenticator = await authenticator(privateKey.publicKey)
+        let authenticator: any Authenticator<String, TestToken> = await authenticator(privateKey.publicKey)
         let payload = token(expiringIn: 3600)
 
         let credential = try await issuer.issue(for: payload)
-        let identity = try await authenticator.authenticate(credential)
+        let identity: TestToken = try await authenticator.authenticate(credential)
 
         #expect(identity == payload)
     }
@@ -105,7 +105,7 @@ struct JWTTests {
         let payload = token(expiringIn: 3600)
 
         let credential = try await issuer.issue(for: payload)
-        let identity = try #require(try await authenticator.authenticate(credential))
+        let identity: TestToken = try await authenticator.authenticate(credential)
         let principal = Principal(identity: identity, credential: credential)
 
         #expect(principal.identity == payload)
