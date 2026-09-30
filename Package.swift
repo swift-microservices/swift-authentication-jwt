@@ -27,7 +27,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-microservices/swift-authentication.git", from: "0.2.0"),
+        .package(url: "https://github.com/swift-microservices/swift-authentication.git", from: "0.3.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "5.7.1"),
     ],
     targets: [

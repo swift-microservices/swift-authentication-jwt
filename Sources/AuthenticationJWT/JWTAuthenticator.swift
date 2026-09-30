@@ -12,9 +12,7 @@ public import JWTKit
 ///
 /// The credential is the token as presented, and the identity is the payload it carries, once
 /// the signature verifies against the keys and the payload's own `verify(using:)` accepts its
-/// claims. A token that fails either is refused by throwing; this authenticator never declines,
-/// because a token that does not verify is not a valid credential this service happens not to
-/// admit, it is an invalid one.
+/// claims. Authentication returns the verified payload or throws if token verification fails.
 ///
 /// The payload's shape is the application's. The authenticator asks only that it be a
 /// `JWTPayload`, and leaves which claims to enforce to the payload:
@@ -43,7 +41,8 @@ public struct JWTAuthenticator<Payload: JWTPayload>: Authenticator {
         self.keys = keys
     }
 
-    public func authenticate(_ token: String) async throws -> Payload? {
+    /// Returns the verified payload, or throws if the token or its claims fail verification.
+    public func authenticate(_ token: String) async throws -> Payload {
         try await keys.verify(token)
     }
 }

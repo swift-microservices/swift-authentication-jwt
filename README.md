@@ -3,7 +3,7 @@
 A bearer token as a JSON Web Token: issued with a private key, proved with the public one.
 
 ```swift
-.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.2.0"),
+.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.3.0"),
 ```
 
 ```swift
@@ -15,7 +15,7 @@ A bearer token as a JSON Web Token: issued with a private key, proved with the p
 | Type | Role |
 | --- | --- |
 | `JWTIssuer<Payload>` | a `CredentialIssuer<Payload, String>`: mints the token; the one process holding the private key |
-| `JWTAuthenticator<Payload>` | an `Authenticator<String, Payload>`: proves the token against the public key, or refuses it |
+| `JWTAuthenticator<Payload>` | an `Authenticator<String, Payload>`: returns the verified payload or throws if authentication fails |
 
 Both come from [swift-authentication](https://github.com/swift-microservices/swift-authentication)'s
 shape and are built on [jwt-kit](https://github.com/vapor/jwt-kit). Each takes a
@@ -51,10 +51,11 @@ let token = try await issuer.issue(for: AppToken(subject: "alice", role: "user",
 let claims = try await authenticator.authenticate(token)
 ```
 
-A token that does not verify, a bad signature, an expired claim, is refused by throwing. This
-authenticator never declines: an invalid credential is an error the caller must see. A transport
-package such as swift-authentication-grpc reads the token off the call, applies the
-authenticator, and binds the result as a `Principal<AppToken, String>`.
+Authentication returns the verified payload. A token that fails verification, such as one with
+a bad signature or an expired claim, throws. A transport package such as
+swift-authentication-grpc reads the token off the call, applies the authenticator, and binds the
+result as a `Principal<AppToken, String>`. Requiring an identity and deciding what it may do are
+the application's decisions.
 
 ## Requirements
 
