@@ -10,12 +10,17 @@ the token string a transport reads from an `Authorization` header or metadata; t
 the payload the token carries.
 
 The payload is the application's type. This package asks only that it be a `JWTPayload`, and
-leaves which claims to enforce to the payload's own `verify(using:)`. Whether it names a person
-or a process is a claim inside it.
+leaves which claims to enforce to the payload's own `verify(using:)`.
 
 Authentication returns the verified payload or throws when verification fails. Whether a call
 requires an identity, and what an authenticated identity may do, are the application's
 decisions.
+
+## User authentication
+
+mTLS secures service connections. Each receiving service authenticates users by verifying the
+original JWT's signature and required claims. Apply bearer authentication to user RPC
+descriptors and check user permissions in the owning use case.
 
 ## Example
 

@@ -19,9 +19,8 @@ to the new one.
 ## The payload is the identity
 
 The authenticator returns the payload as the identity. What is in it is the application's
-choice, and the package never reads it. A subject, a role, an expiration are the usual claims;
-whether the subject is a person or a process is one more claim, or the absence of one. Roles
-travel in the token and the application decides what they permit.
+choice, and the package never reads it. User tokens carry claims such as subject, role, issuer,
+audience, and expiration. The owning use case checks what the verified user may do.
 
 Which claims to enforce is the payload's own `verify(using:)`. The authenticator calls it after
 the signature checks, so an expired token fails the same way a forged one does.
@@ -34,4 +33,10 @@ failure into their unauthenticated status. A call with no token never reaches th
 requiring an identity is the application's decision.
 
 A token that verifies but names a subject the service does not know is a different question,
-and not this package's: the handler decides what a proven identity may do.
+and not this package's: the owning use case checks the user and resource relationships.
+
+## User authentication
+
+mTLS secures service connections; JWTs authenticate users. Each receiving service verifies the
+original token's signature, issuer, audience, and expiry. Scope bearer authentication and
+propagation to user RPC descriptors, and authorize the operation in the owning use case.
