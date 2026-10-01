@@ -57,6 +57,12 @@ swift-authentication-grpc reads the token off the call, applies the authenticato
 result as a `Principal<AppToken, String>`. Requiring an identity and deciding what it may do are
 the application's decisions.
 
+## User authentication
+
+mTLS secures service connections; JWTs authenticate users. Each receiving service verifies the
+original token's signature, issuer, audience, and expiry. Scope bearer authentication and
+propagation to user RPC descriptors, and authorize the operation in the owning use case.
+
 ## Requirements
 
 Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1 or later.

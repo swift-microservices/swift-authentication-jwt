@@ -14,6 +14,13 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
 - jwt-kit is required from 5.7.1, the first release whose warnings-as-errors setting no longer
   reaches an Xcode build. Do not reintroduce a ceiling below it.
 
+## Application standard
+
+- mTLS secures backend connections. JWTs authenticate users; each receiving service verifies
+  the original token's signature, issuer, audience, and expiry.
+- Scope bearer authentication and propagation to user descriptors. User handlers require the
+  identity, and owning use cases authorize the operation.
+
 ## What does not belong here
 
 - Reading claims, roles, or permissions.
