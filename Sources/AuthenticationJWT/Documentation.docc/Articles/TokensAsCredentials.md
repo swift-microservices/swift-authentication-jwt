@@ -7,9 +7,9 @@ ignored.
 
 A JSON Web Token is a payload signed by a private key. The one process that holds that key is
 the issuer: it mints a token when a person proves who they are by other means, a password or a
-passkey. Every other process holds only the public key, and can prove a
-token it is handed without being able to mint one. That asymmetry is the whole design: a stolen
-verification key lets an attacker read tokens, never forge them.
+passkey. Every other process holds only the public key, and can verify a
+token without being able to sign one. JWT payloads are readable without the verification key;
+signing provides integrity, not confidentiality.
 
 ``JWTIssuer`` and ``JWTAuthenticator`` are those two roles, over a `JWTKeyCollection` each.
 Which algorithms and how many keys is the application's choice, and a collection with two keys
@@ -22,7 +22,7 @@ The authenticator returns the payload as the identity. What is in it is the appl
 choice, and the package never reads it. User tokens carry claims such as subject, role, issuer,
 audience, and expiration. The owning use case checks what the verified user may do.
 
-Which claims to enforce is the payload's own `verify(using:)`. The authenticator calls it after
+The payload’s `verify(using:)` enforces the required claims. The authenticator calls it after
 the signature checks, so an expired token fails the same way a forged one does.
 
 ## Authentication returns an identity or throws
