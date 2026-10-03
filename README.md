@@ -1,5 +1,7 @@
 # swift-authentication-jwt
 
+[![Documentation](https://img.shields.io/badge/docc-read_documentation-blue)](https://swiftpackageindex.com/swift-microservices/swift-authentication-jwt/documentation)
+
 A bearer token as a JSON Web Token: issued with a private key, proved with the public one.
 
 ```swift
