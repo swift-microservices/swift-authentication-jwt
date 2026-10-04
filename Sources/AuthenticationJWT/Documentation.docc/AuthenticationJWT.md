@@ -10,7 +10,8 @@ the token string a transport reads from an `Authorization` header or metadata; t
 the payload the token carries.
 
 The payload is the application's type. This package asks only that it be a `JWTPayload`, and
-leaves which claims to enforce to the payload's own `verify(using:)`.
+leaves which claims to enforce to the payload's own `verify(using:)`: the issuer, the audience,
+and the expiry at least.
 
 Authentication returns the verified payload or throws when verification fails. Whether a call
 requires an identity, and what an authenticated identity may do, are the application's
@@ -19,19 +20,33 @@ decisions.
 ## User authentication
 
 mTLS secures service connections. Each receiving service authenticates users by verifying the
-original JWT's signature and required claims. Apply bearer authentication to user RPC
-descriptors and check user permissions in the owning use case.
+original JWT's signature and required claims. Apply bearer authentication to user routes
+and RPC descriptors, and check user permissions in the owning use case.
 
 ## Example
 
 ```swift
 struct AppToken: JWTPayload {
+    enum CodingKeys: String, CodingKey {
+        case subject = "sub"
+        case issuer = "iss"
+        case audience = "aud"
+        case expiration = "exp"
+        case role
+    }
+
     let subject: SubjectClaim
-    let role: String
+    let issuer: IssuerClaim
+    let audience: AudienceClaim
     let expiration: ExpirationClaim
+    let role: String
 
     func verify(using algorithm: some JWTAlgorithm) throws {
         try expiration.verifyNotExpired()
+        try audience.verifyIntendedAudience(includes: "posts")
+        guard issuer.value == "https://auth.example.com" else {
+            throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+        }
     }
 }
 
@@ -43,7 +58,15 @@ let verificationKeys = JWTKeyCollection()
 await verificationKeys.add(eddsa: publicKey)
 let authenticator = JWTAuthenticator<AppToken>(keys: verificationKeys)
 
-let token = try await issuer.issue(for: AppToken(subject: "alice", role: "user", expiration: .init(value: .now + 3600)))
+let token = try await issuer.issue(
+    for: AppToken(
+        subject: "alice",
+        issuer: "https://auth.example.com",
+        audience: "posts",
+        expiration: .init(value: .now + 3600),
+        role: "user"
+    )
+)
 let claims = try await authenticator.authenticate(token)
 ```
 

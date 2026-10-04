@@ -16,12 +16,26 @@ public import JWTKit
 ///
 /// ```swift
 /// struct AppToken: JWTPayload {
+///     enum CodingKeys: String, CodingKey {
+///         case subject = "sub"
+///         case issuer = "iss"
+///         case audience = "aud"
+///         case expiration = "exp"
+///         case role
+///     }
+///
 ///     let subject: SubjectClaim
-///     let role: String
+///     let issuer: IssuerClaim
+///     let audience: AudienceClaim
 ///     let expiration: ExpirationClaim
+///     let role: String
 ///
 ///     func verify(using algorithm: some JWTAlgorithm) throws {
 ///         try expiration.verifyNotExpired()
+///         try audience.verifyIntendedAudience(includes: "posts")
+///         guard issuer.value == "https://auth.example.com" else {
+///             throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+///         }
 ///     }
 /// }
 ///
@@ -32,6 +46,8 @@ public import JWTKit
 public struct JWTAuthenticator<Payload: JWTPayload>: Authenticator {
     private let keys: JWTKeyCollection
 
+    /// An authenticator that verifies tokens against `keys`.
+    ///
     /// - Parameter keys: The verification keys. Which algorithms and how many is the
     ///   application's choice.
     public init(keys: JWTKeyCollection) {

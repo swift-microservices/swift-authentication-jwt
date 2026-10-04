@@ -22,7 +22,8 @@ The authenticator returns the payload as the identity. What is in it is the appl
 choice, and the package never reads it. User tokens carry claims such as subject, role, issuer,
 audience, and expiration. The owning use case checks what the verified user may do.
 
-The payload’s `verify(using:)` enforces the required claims. The authenticator calls it after
+The payload's `verify(using:)` enforces the required claims: at least the issuer, the audience
+the service accepts, and the expiry. The authenticator calls it after
 the signature checks, so an expired token fails the same way a forged one does.
 
 ## Authentication returns an identity or throws
@@ -38,5 +39,6 @@ and not this package's: the owning use case checks the user and resource relatio
 ## User authentication
 
 mTLS secures service connections; JWTs authenticate users. Each receiving service verifies the
-original token's signature, issuer, audience, and expiry. Scope bearer authentication and
-propagation to user RPC descriptors, and authorize the operation in the owning use case.
+original token's signature, issuer, audience, and expiry. Apply bearer authentication to user
+routes and RPC descriptors, forward the original token only to upstream user descriptors, and
+authorize the operation in the owning use case.
