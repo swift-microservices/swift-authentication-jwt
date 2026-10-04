@@ -26,16 +26,31 @@ shape and are built on [jwt-kit](https://github.com/vapor/jwt-kit). Each takes a
 ## The token shape is yours
 
 The package never reads your claims. It asks only for a `JWTPayload`, and leaves which claims to
-enforce to the payload's own `verify(using:)`:
+enforce to the payload's own `verify(using:)`. Check the issuer, the audience, and the expiry
+there; the authenticator runs it after the signature verifies:
 
 ```swift
 struct AppToken: JWTPayload {
+    enum CodingKeys: String, CodingKey {
+        case subject = "sub"
+        case issuer = "iss"
+        case audience = "aud"
+        case expiration = "exp"
+        case role
+    }
+
     let subject: SubjectClaim
-    let role: String
+    let issuer: IssuerClaim
+    let audience: AudienceClaim
     let expiration: ExpirationClaim
+    let role: String
 
     func verify(using algorithm: some JWTAlgorithm) throws {
         try expiration.verifyNotExpired()
+        try audience.verifyIntendedAudience(includes: "posts")
+        guard issuer.value == "https://auth.example.com" else {
+            throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+        }
     }
 }
 ```
@@ -49,7 +64,15 @@ let verificationKeys = JWTKeyCollection()
 await verificationKeys.add(eddsa: publicKey)
 let authenticator = JWTAuthenticator<AppToken>(keys: verificationKeys)
 
-let token = try await issuer.issue(for: AppToken(subject: "alice", role: "user", expiration: .init(value: .now + 3600)))
+let token = try await issuer.issue(
+    for: AppToken(
+        subject: "alice",
+        issuer: "https://auth.example.com",
+        audience: "posts",
+        expiration: .init(value: .now + 3600),
+        role: "user"
+    )
+)
 let claims = try await authenticator.authenticate(token)
 ```
 
@@ -62,12 +85,13 @@ the application's decisions.
 ## User authentication
 
 mTLS secures service connections; JWTs authenticate users. Each receiving service verifies the
-original token's signature, issuer, audience, and expiry. Scope bearer authentication and
-propagation to user RPC descriptors, and authorize the operation in the owning use case.
+original token's signature, issuer, audience, and expiry. Apply bearer authentication to user
+routes and RPC descriptors, forward the original token only to upstream user descriptors, and
+authorize the operation in the owning use case.
 
 ## Requirements
 
-Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1 or later.
+Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1, swift-authentication 0.3.
 
 ## Development
 

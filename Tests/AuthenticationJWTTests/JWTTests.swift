@@ -14,12 +14,26 @@ import Foundation
 #endif
 
 struct TestToken: JWTPayload, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case subject = "sub"
+        case issuer = "iss"
+        case audience = "aud"
+        case expiration = "exp"
+        case role
+    }
+
     let subject: SubjectClaim
-    let role: String
+    let issuer: IssuerClaim
+    let audience: AudienceClaim
     let expiration: ExpirationClaim
+    let role: String
 
     func verify(using algorithm: some JWTAlgorithm) throws {
         try expiration.verifyNotExpired()
+        try audience.verifyIntendedAudience(includes: "posts")
+        guard issuer.value == "https://auth.example.com" else {
+            throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+        }
     }
 }
 
@@ -41,9 +55,19 @@ struct JWTTests {
 
     /// A JWT carries its expiration in whole seconds, so the date is built without a fraction to
     /// survive the round trip unchanged.
-    func token(expiringIn seconds: TimeInterval) -> TestToken {
+    func token(
+        expiringIn seconds: TimeInterval,
+        issuer: IssuerClaim = "https://auth.example.com",
+        audience: AudienceClaim = "posts"
+    ) -> TestToken {
         let expiration = Date(timeIntervalSince1970: (Date().timeIntervalSince1970 + seconds).rounded(.down))
-        return TestToken(subject: "alice", role: "user", expiration: ExpirationClaim(value: expiration))
+        return TestToken(
+            subject: "alice",
+            issuer: issuer,
+            audience: audience,
+            expiration: ExpirationClaim(value: expiration),
+            role: "user"
+        )
     }
 
     @Test("A token the issuer minted is proved by the authenticator holding the public key")
@@ -64,6 +88,30 @@ struct JWTTests {
         let authenticator = await authenticator(privateKey.publicKey)
 
         let credential = try await issuer.issue(for: token(expiringIn: -60))
+
+        await #expect(throws: JWTError.self) {
+            try await authenticator.authenticate(credential)
+        }
+    }
+
+    @Test("A token for another audience is refused")
+    func foreignAudienceIsRefused() async throws {
+        let issuer = await issuer(privateKey)
+        let authenticator = await authenticator(privateKey.publicKey)
+
+        let credential = try await issuer.issue(for: token(expiringIn: 3600, audience: "billing"))
+
+        await #expect(throws: JWTError.self) {
+            try await authenticator.authenticate(credential)
+        }
+    }
+
+    @Test("A token from another issuer is refused")
+    func foreignIssuerIsRefused() async throws {
+        let issuer = await issuer(privateKey)
+        let authenticator = await authenticator(privateKey.publicKey)
+
+        let credential = try await issuer.issue(for: token(expiringIn: 3600, issuer: "https://other.example.com"))
 
         await #expect(throws: JWTError.self) {
             try await authenticator.authenticate(credential)
@@ -95,8 +143,8 @@ struct JWTTests {
         }
     }
 
-    @Test("A proved token binds as a principal of the token")
-    func provedTokenBindsAsPrincipal() async throws {
+    @Test("A proved payload and its token form a principal")
+    func provedTokenFormsPrincipal() async throws {
         let issuer = await issuer(privateKey)
         let authenticator = await authenticator(privateKey.publicKey)
         let payload = token(expiringIn: 3600)

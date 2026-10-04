@@ -12,13 +12,14 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
 - The authenticator returns the verified payload or throws if authentication fails. The
   application decides whether a call requires an identity and what that identity may do.
 - jwt-kit is required from 5.7.1, the first release whose warnings-as-errors setting no longer
-  reaches an Xcode build. Do not reintroduce a ceiling below it.
+  reaches an Xcode build. Do not lower the floor below it.
 
 ## Application standard
 
 - mTLS secures backend connections. JWTs authenticate users; each receiving service verifies
   the original token's signature, issuer, audience, and expiry.
-- Scope bearer authentication and propagation to user descriptors. User handlers require the
+- Apply bearer authentication to user routes and RPC descriptors, and forward the original
+  token only to upstream user descriptors. User handlers require the
   identity, and owning use cases authorize the operation.
 
 ## What does not belong here
@@ -32,7 +33,8 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
 
 - Swift 6.3, strict concurrency, `Sendable` everywhere it is meaningful.
 - Tests use Swift Testing with keys generated in memory: issue-and-authenticate round trip,
-  expired, foreign key, tampered, and the proved token bound as a principal.
+  expired, wrong audience, wrong issuer, foreign key, tampered, and the proved payload and token
+  forming a principal.
 - Doc comments on every public declaration; the DocC catalog is the long-form explanation.
 - Use the checked-in `.swift-format`, copied exactly from apple/swift-temporal-sdk at
   `508797b5468dbc532f77c317bf9df0cb3231f5c1`: four-space indentation, 150-column lines,
