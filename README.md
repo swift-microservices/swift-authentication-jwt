@@ -5,7 +5,7 @@
 A bearer token as a JSON Web Token: issued with a private key, proved with the public one.
 
 ```swift
-.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.3.0"),
+.package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "0.3.2"),
 ```
 
 ```swift
@@ -91,7 +91,7 @@ authorize the operation in the owning use case.
 
 ## Requirements
 
-Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1, swift-authentication 0.3.
+Swift 6.3, macOS 15 or Linux. jwt-kit 5.7.1, swift-authentication 0.4.
 
 ## Development
 
