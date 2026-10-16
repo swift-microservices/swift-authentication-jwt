@@ -31,21 +31,21 @@ struct AppToken: JWTPayload {
         case subject = "sub"
         case issuer = "iss"
         case audience = "aud"
-        case expiration = "exp"
+        case expirationDate = "exp"
         case role
     }
 
-    let subject: SubjectClaim
-    let issuer: IssuerClaim
-    let audience: AudienceClaim
-    let expiration: ExpirationClaim
+    let subject: String
+    let issuer: String
+    let audience: String
+    let expirationDate: Date
     let role: String
 
     func verify(using algorithm: some JWTAlgorithm) throws {
-        try expiration.verifyNotExpired()
-        try audience.verifyIntendedAudience(includes: "posts")
-        guard issuer.value == "https://auth.example.com" else {
-            throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+        try ExpirationClaim(value: expirationDate).verifyNotExpired()
+        try AudienceClaim(value: [audience]).verifyIntendedAudience(includes: "posts")
+        guard issuer == "https://auth.example.com" else {
+            throw JWTError.claimVerificationFailure(failedClaim: IssuerClaim(value: issuer), reason: "unexpected issuer")
         }
     }
 }
@@ -63,7 +63,7 @@ let token = try await issuer.issue(
         subject: "alice",
         issuer: "https://auth.example.com",
         audience: "posts",
-        expiration: .init(value: .now + 3600),
+        expirationDate: .now + 3600,
         role: "user"
     )
 )

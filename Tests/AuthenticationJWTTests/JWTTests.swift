@@ -18,21 +18,21 @@ struct TestToken: JWTPayload, Equatable {
         case subject = "sub"
         case issuer = "iss"
         case audience = "aud"
-        case expiration = "exp"
+        case expirationDate = "exp"
         case role
     }
 
-    let subject: SubjectClaim
-    let issuer: IssuerClaim
-    let audience: AudienceClaim
-    let expiration: ExpirationClaim
+    let subject: String
+    let issuer: String
+    let audience: String
+    let expirationDate: Date
     let role: String
 
     func verify(using algorithm: some JWTAlgorithm) throws {
-        try expiration.verifyNotExpired()
-        try audience.verifyIntendedAudience(includes: "posts")
-        guard issuer.value == "https://auth.example.com" else {
-            throw JWTError.claimVerificationFailure(failedClaim: issuer, reason: "unexpected issuer")
+        try ExpirationClaim(value: expirationDate).verifyNotExpired()
+        try AudienceClaim(value: [audience]).verifyIntendedAudience(includes: "posts")
+        guard issuer == "https://auth.example.com" else {
+            throw JWTError.claimVerificationFailure(failedClaim: IssuerClaim(value: issuer), reason: "unexpected issuer")
         }
     }
 }
@@ -57,15 +57,15 @@ struct JWTTests {
     /// survive the round trip unchanged.
     func token(
         expiringIn seconds: TimeInterval,
-        issuer: IssuerClaim = "https://auth.example.com",
-        audience: AudienceClaim = "posts"
+        issuer: String = "https://auth.example.com",
+        audience: String = "posts"
     ) -> TestToken {
         let expiration = Date(timeIntervalSince1970: (Date().timeIntervalSince1970 + seconds).rounded(.down))
         return TestToken(
             subject: "alice",
             issuer: issuer,
             audience: audience,
-            expiration: ExpirationClaim(value: expiration),
+            expirationDate: expiration,
             role: "user"
         )
     }
