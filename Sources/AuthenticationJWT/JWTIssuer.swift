@@ -19,7 +19,7 @@ public import JWTKit
 ///         subject: "alice",
 ///         issuer: "https://auth.example.com",
 ///         audience: "posts",
-///         expiration: .init(value: .now + 3600),
+///         expirationDate: .now + 3600,
 ///         role: "user"
 ///     )
 /// )
