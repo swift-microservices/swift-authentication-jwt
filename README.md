@@ -29,9 +29,9 @@ password or a passkey. Every other process holds only the public key, so it can 
 but never sign one.
 
 This package gives those two roles a type each. `JWTIssuer<Payload>` is swift-authentication's
-`CredentialIssuer<Payload, String>`: it signs a payload and returns the token. `JWTAuthenticator<Payload>`
-is an `Authenticator<String, Payload>`: it takes the token as presented and returns the verified
-payload, or throws if verification fails.
+`CredentialIssuer<Payload, String>`: it signs a payload and returns the token.
+`JWTAuthenticator<Payload>` is an `Authenticator<String, Payload>`: it takes the token as
+presented and returns the verified payload, or throws if verification fails.
 
 **Key Features:**
 - 🧾 **Your token shape**: the payload is your own `JWTPayload` type. The package never reads
