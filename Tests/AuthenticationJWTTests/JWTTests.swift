@@ -130,6 +130,22 @@ struct JWTTests {
         }
     }
 
+    @Test("During a key rotation, tokens signed by the old and the new key are both proved")
+    func rotatedKeysAreBothAccepted() async throws {
+        let newKey = try EdDSA.PrivateKey(curve: .ed25519)
+        let keys = JWTKeyCollection()
+        await keys.add(eddsa: privateKey.publicKey, kid: "old")
+        await keys.add(eddsa: newKey.publicKey, kid: "new")
+        let authenticator = JWTAuthenticator<TestToken>(keys: keys)
+        let payload = token(expiringIn: 3600)
+
+        let oldCredential = try await issuer(privateKey).issue(for: payload)
+        let newCredential = try await issuer(newKey).issue(for: payload)
+
+        #expect(try await authenticator.authenticate(oldCredential) == payload)
+        #expect(try await authenticator.authenticate(newCredential) == payload)
+    }
+
     @Test("A tampered token is refused")
     func tamperedTokenIsRefused() async throws {
         let issuer = await issuer(privateKey)
