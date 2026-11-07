@@ -55,6 +55,6 @@ This package proves bearer tokens that are JSON Web Tokens. Read this before cha
 
 ## CI
 
-The standard library CI from the swift-microservices delivery skill
-([library-ci.md](https://github.com/swift-microservices/skills/blob/main/skills/delivering-swift-services/references/library-ci.md)).
+The standard library CI from the swift-microservices-architect skill
+([A library's CI workflows](https://github.com/swift-microservices/swift-microservices-architect-skill/blob/main/skills/swift-microservices-architect/references/delivery.md#a-librarys-ci-workflows)).
 No exceptions.
