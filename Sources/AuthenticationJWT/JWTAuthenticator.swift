@@ -49,13 +49,18 @@ public struct JWTAuthenticator<Payload: JWTPayload>: Authenticator {
     /// An authenticator that verifies tokens against `keys`.
     ///
     /// - Parameter keys: The verification keys. Which algorithms and how many is the
-    ///   application's choice.
+    ///   application's choice. To rotate keys, add each one with its own `kid`: a collection keeps
+    ///   only one key without a `kid`, and the authenticator tries every key in the collection.
     public init(keys: JWTKeyCollection) {
         self.keys = keys
     }
 
     /// Returns the verified payload, or throws if the token or its claims fail verification.
+    ///
+    /// The token is checked against the key its `kid` names, or the collection's default key when
+    /// it names none, and then against every other key in the collection, so tokens signed by an
+    /// old and a new key both verify during a rotation.
     public func authenticate(_ token: String) async throws -> Payload {
-        try await keys.verify(token)
+        try await keys.verify(token, iteratingKeys: true)
     }
 }

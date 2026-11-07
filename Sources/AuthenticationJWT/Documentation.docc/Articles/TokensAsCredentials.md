@@ -14,7 +14,9 @@ signing provides integrity, not confidentiality.
 ``JWTIssuer`` and ``JWTAuthenticator`` are those two roles, over a `JWTKeyCollection` each.
 Which algorithms and how many keys is the application's choice, and a collection with two keys
 is how rotation works: the authenticator accepts tokens signed by either while the issuer moves
-to the new one.
+to the new one. Add each key with its own `kid` (`keys.add(eddsa: publicKey, kid: "2026-11")`),
+because a collection keeps only one key without one. The authenticator tries the key a token's
+`kid` names, or the default key, and then every other key in the collection.
 
 ## The payload is the identity
 
