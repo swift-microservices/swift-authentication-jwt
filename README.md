@@ -41,9 +41,8 @@ presented and returns the verified payload, or throws if verification fails.
 - 🔐 **Keys are your choice**: both types take a jwt-kit `JWTKeyCollection`, so which algorithms
   and how many keys is up to the application.
 - 🔌 **Fits any transport**: because the types are swift-authentication's protocols, the
-  [gRPC](https://github.com/swift-microservices/swift-authentication-grpc),
-  [Hummingbird](https://github.com/swift-microservices/swift-authentication-hummingbird) and
-  [Vapor](https://github.com/swift-microservices/swift-authentication-vapor) packages can read the
+  [gRPC](https://github.com/swift-microservices/swift-authentication-grpc) and
+  [Hummingbird](https://github.com/swift-microservices/swift-authentication-hummingbird) packages can read the
   token off a request and apply the authenticator.
 
 Authentication proves an identity; it doesn't decide what that identity may do. Whether a call
