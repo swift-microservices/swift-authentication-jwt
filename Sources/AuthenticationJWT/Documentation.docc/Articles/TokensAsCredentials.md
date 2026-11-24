@@ -15,8 +15,37 @@ signing provides integrity, not confidentiality.
 Which algorithms and how many keys is the application's choice, and a collection with two keys
 is how rotation works: the authenticator accepts tokens signed by either while the issuer moves
 to the new one. Add each key with its own `kid` (`keys.add(eddsa: publicKey, kid: "2026-11")`),
-because a collection keeps only one key without one. The authenticator tries the key a token's
-`kid` names, or the default key, and then every other key in the collection.
+because a collection keeps only one key without one. Give the issuer the same `kid`
+(`JWTIssuer(keys: keys, kid: "2026-11")`) and each token names it in its header. The
+authenticator tries the key a token's `kid` names, or the default key, and then every other key
+in the collection.
+
+## Rotating a key
+
+A key changes in three steps, so no authenticator meets a token it can't check:
+
+1. Add the new public key, under its own `kid`, to every authenticator's collection beside the
+   old one, and deploy every service that authenticates.
+2. Move the issuer to the new key: add the new private key under its `kid` and pass that `kid`
+   to ``JWTIssuer/init(keys:kid:)``. Its tokens now name the new key.
+3. Once the longest-lived token signed with the old key has expired, remove the old public key
+   from every collection.
+
+```swift
+// Step 1, on every service that authenticates.
+let verificationKeys = JWTKeyCollection()
+await verificationKeys.add(eddsa: oldPublicKey, kid: "2026-05")
+await verificationKeys.add(eddsa: newPublicKey, kid: "2026-11")
+let authenticator = JWTAuthenticator<AppToken>(keys: verificationKeys)
+
+// Step 2, on the issuer.
+let signingKeys = JWTKeyCollection()
+await signingKeys.add(eddsa: newPrivateKey, kid: "2026-11")
+let issuer = JWTIssuer<AppToken>(keys: signingKeys, kid: "2026-11")
+```
+
+Without a `kid`, the issuer signs with its collection's default key and its tokens name none;
+the authenticator then tries its default key and every other key in turn.
 
 ## The payload is the identity
 

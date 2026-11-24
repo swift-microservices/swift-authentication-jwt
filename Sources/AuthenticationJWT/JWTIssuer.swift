@@ -8,12 +8,14 @@ public import JWTKit
 /// Mints a bearer token that is a JSON Web Token.
 ///
 /// The counterpart of ``JWTAuthenticator``: the one process that holds the private key issues,
-/// every other holds the public key and authenticates.
+/// every other holds the public key and authenticates. Naming the key's `kid` writes it into each
+/// token's header, so an authenticator holding several keys during a rotation finds the right
+/// one without trying the others.
 ///
 /// ```swift
 /// let keys = JWTKeyCollection()
-/// await keys.add(eddsa: privateKey)
-/// let issuer = JWTIssuer<AppToken>(keys: keys)
+/// await keys.add(eddsa: privateKey, kid: "2026-11")
+/// let issuer = JWTIssuer<AppToken>(keys: keys, kid: "2026-11")
 /// let token = try await issuer.issue(
 ///     for: AppToken(
 ///         subject: "alice",
@@ -26,17 +28,30 @@ public import JWTKit
 /// ```
 public struct JWTIssuer<Payload: JWTPayload>: CredentialIssuer {
     private let keys: JWTKeyCollection
+    private let kid: JWKIdentifier?
 
-    /// An issuer that signs tokens with `keys`.
+    /// An issuer that signs tokens with the default key of `keys`, naming no `kid`.
     ///
     /// - Parameter keys: The signing keys. Which algorithms and how many is the application's
     ///   choice.
     public init(keys: JWTKeyCollection) {
         self.keys = keys
+        self.kid = nil
+    }
+
+    /// An issuer that signs tokens with the key `kid` names, writing that `kid` into each
+    /// token's header so authenticators find its public key directly.
+    ///
+    /// - Parameters:
+    ///   - keys: The signing keys, which hold a key under `kid`.
+    ///   - kid: The key to sign with.
+    public init(keys: JWTKeyCollection, kid: JWKIdentifier) {
+        self.keys = keys
+        self.kid = kid
     }
 
     /// Signs `payload` and returns the compact token.
     public func issue(for payload: Payload) async throws -> String {
-        try await keys.sign(payload)
+        try await keys.sign(payload, kid: kid)
     }
 }

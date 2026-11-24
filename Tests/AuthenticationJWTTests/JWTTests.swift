@@ -146,6 +146,27 @@ struct JWTTests {
         #expect(try await authenticator.authenticate(newCredential) == payload)
     }
 
+    @Test("An issuer given a kid signs with that key and names it in each token's header")
+    func issuerNamesItsKeyIdentifier() async throws {
+        let otherKey = try EdDSA.PrivateKey(curve: .ed25519)
+        let keys = JWTKeyCollection()
+        await keys.add(eddsa: otherKey, kid: "other")
+        await keys.add(eddsa: privateKey, kid: "current")
+        let issuer = JWTIssuer<TestToken>(keys: keys, kid: "current")
+        let authenticator = await authenticator(privateKey.publicKey)
+        let payload = token(expiringIn: 3600)
+
+        let credential = try await issuer.issue(for: payload)
+        let header = try #require(credential.split(separator: ".").first)
+        let base64 = String(header).replacing("-", with: "+").replacing("_", with: "/")
+        let padding = String(repeating: "=", count: (4 - base64.count % 4) % 4)
+        let headerJSON = try #require(Data(base64Encoded: base64 + padding))
+        let headerFields = try JSONDecoder().decode([String: String].self, from: headerJSON)
+
+        #expect(headerFields["kid"] == "current")
+        #expect(try await authenticator.authenticate(credential) == payload)
+    }
+
     @Test("A tampered token is refused")
     func tamperedTokenIsRefused() async throws {
         let issuer = await issuer(privateKey)
