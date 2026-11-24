@@ -14,8 +14,8 @@ public import JWTKit
 ///
 /// ```swift
 /// let keys = JWTKeyCollection()
-/// await keys.add(eddsa: privateKey)
-/// let issuer = JWTIssuer<AppToken>(keys: keys)
+/// await keys.add(eddsa: privateKey, kid: "2026-11")
+/// let issuer = JWTIssuer<AppToken>(keys: keys, kid: "2026-11")
 /// let token = try await issuer.issue(
 ///     for: AppToken(
 ///         subject: "alice",

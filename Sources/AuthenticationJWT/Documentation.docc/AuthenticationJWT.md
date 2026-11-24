@@ -13,6 +13,10 @@ The payload is the application's type. This package asks only that it be a `JWTP
 leaves which claims to enforce to the payload's own `verify(using:)`: the issuer, the audience,
 and the expiry at least.
 
+Each key carries a `kid`, its key identifier. Give the issuer the `kid` of the key it signs with,
+and every token names that key in its header, so an authenticator that holds several keys while
+one rotates verifies against the right one first.
+
 Authentication returns the verified payload or throws when verification fails. Whether a call
 requires an identity, and what an authenticated identity may do, are the application's
 decisions.
@@ -51,11 +55,11 @@ struct AppToken: JWTPayload {
 }
 
 let signingKeys = JWTKeyCollection()
-await signingKeys.add(eddsa: privateKey)
-let issuer = JWTIssuer<AppToken>(keys: signingKeys)
+await signingKeys.add(eddsa: privateKey, kid: "2026-11")
+let issuer = JWTIssuer<AppToken>(keys: signingKeys, kid: "2026-11")
 
 let verificationKeys = JWTKeyCollection()
-await verificationKeys.add(eddsa: publicKey)
+await verificationKeys.add(eddsa: publicKey, kid: "2026-11")
 let authenticator = JWTAuthenticator<AppToken>(keys: verificationKeys)
 
 let token = try await issuer.issue(

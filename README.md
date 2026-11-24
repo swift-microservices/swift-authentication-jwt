@@ -39,7 +39,8 @@ presented and returns the verified payload, or throws if verification fails.
 - ✅ **Signature, then claims**: the authenticator checks the signature first and then runs the
   payload's `verify(using:)`, so an expired token fails the same way a forged one does.
 - 🔐 **Keys are your choice**: both types take a jwt-kit `JWTKeyCollection`, so which algorithms
-  and how many keys is up to the application.
+  and how many keys is up to the application. Give the issuer a key's `kid` and every token names
+  it, so authenticators holding two keys during a rotation find the right one.
 - 🔌 **Fits any transport**: because the types are swift-authentication's protocols, the
   [gRPC](https://github.com/swift-microservices/swift-authentication-grpc) and
   [Hummingbird](https://github.com/swift-microservices/swift-authentication-hummingbird) packages can read the
@@ -63,7 +64,7 @@ Add the package to your `Package.swift`, along with jwt-kit for `JWTPayload` and
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "1.0.0"),
+    .package(url: "https://github.com/swift-microservices/swift-authentication-jwt.git", from: "1.1.0"),
     .package(url: "https://github.com/vapor/jwt-kit.git", from: "5.7.1"),
 ],
 targets: [
@@ -117,8 +118,8 @@ struct AppToken: JWTPayload {
 
 #### 2. Issue a token with the private key
 
-Only the process that signs users in holds the private key. Put it in a `JWTKeyCollection` and
-hand that to a `JWTIssuer`:
+Only the process that signs users in holds the private key. Put it in a `JWTKeyCollection` under
+its `kid`, and hand both to a `JWTIssuer`, which names that key in every token's header:
 
 ```swift
 import AuthenticationJWT
@@ -129,8 +130,8 @@ import JWTKit
 let privateKey = try EdDSA.PrivateKey(curve: .ed25519)
 
 let signingKeys = JWTKeyCollection()
-await signingKeys.add(eddsa: privateKey)
-let issuer = JWTIssuer<AppToken>(keys: signingKeys)
+await signingKeys.add(eddsa: privateKey, kid: "2026-11")
+let issuer = JWTIssuer<AppToken>(keys: signingKeys, kid: "2026-11")
 
 // The compact token string to send back to the user.
 let token = try await issuer.issue(
@@ -153,7 +154,7 @@ Every service that receives the token holds only the public key, and uses a `JWT
 let publicKey = privateKey.publicKey
 
 let verificationKeys = JWTKeyCollection()
-await verificationKeys.add(eddsa: publicKey)
+await verificationKeys.add(eddsa: publicKey, kid: "2026-11")
 let authenticator = JWTAuthenticator<AppToken>(keys: verificationKeys)
 
 // Returns the verified payload. A bad signature, an expired token, or

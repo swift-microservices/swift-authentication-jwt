@@ -40,7 +40,7 @@ public import JWTKit
 /// }
 ///
 /// let keys = JWTKeyCollection()
-/// await keys.add(eddsa: publicKey)
+/// await keys.add(eddsa: publicKey, kid: "2026-11")
 /// let authenticator = JWTAuthenticator<AppToken>(keys: keys)
 /// ```
 public struct JWTAuthenticator<Payload: JWTPayload>: Authenticator {
