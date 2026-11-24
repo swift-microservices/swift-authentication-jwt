@@ -30,14 +30,22 @@ public struct JWTIssuer<Payload: JWTPayload>: CredentialIssuer {
     private let keys: JWTKeyCollection
     private let kid: JWKIdentifier?
 
-    /// An issuer that signs tokens with `keys`.
+    /// An issuer that signs tokens with the default key of `keys`, naming no `kid`.
+    ///
+    /// - Parameter keys: The signing keys. Which algorithms and how many is the application's
+    ///   choice.
+    public init(keys: JWTKeyCollection) {
+        self.keys = keys
+        self.kid = nil
+    }
+
+    /// An issuer that signs tokens with the key `kid` names, writing that `kid` into each
+    /// token's header so authenticators find its public key directly.
     ///
     /// - Parameters:
-    ///   - keys: The signing keys. Which algorithms and how many is the application's choice.
-    ///   - kid: The key to sign with, named in each token's `kid` header so authenticators find
-    ///     its public key directly. With `nil`, the collection's default key signs and tokens
-    ///     name no `kid`.
-    public init(keys: JWTKeyCollection, kid: JWKIdentifier? = nil) {
+    ///   - keys: The signing keys, which hold a key under `kid`.
+    ///   - kid: The key to sign with.
+    public init(keys: JWTKeyCollection, kid: JWKIdentifier) {
         self.keys = keys
         self.kid = kid
     }
